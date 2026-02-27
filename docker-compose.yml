@@ -1,0 +1,68 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["bun", "run", "src/api.ts"]
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - DATABASE_URL=postgresql://stt:stt@db:5432/stt
+      - BASIC_AUTH_USER=${BASIC_AUTH_USER:-admin}
+      - BASIC_AUTH_PASS=${BASIC_AUTH_PASS:-admin}
+      - STORAGE_DIR=/data/audio
+      - WHISPER_MODEL_PATH=/models/ggml-small.bin
+      - WHISPER_BINARY_PATH=whisper-cli
+      - MAX_FILE_SIZE_MB=20
+    volumes:
+      - audio_data:/data/audio
+      - model_data:/models
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["bun", "run", "src/worker.ts"]
+    environment:
+      - DATABASE_URL=postgresql://stt:stt@db:5432/stt
+      - STORAGE_DIR=/data/audio
+      - WHISPER_MODEL_PATH=/models/ggml-small.bin
+      - WHISPER_BINARY_PATH=whisper-cli
+      - MAX_ATTEMPTS=3
+      - WORKER_POLL_INTERVAL_MS=3000
+    volumes:
+      - audio_data:/data/audio
+      - model_data:/models
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: stt
+      POSTGRES_PASSWORD: stt
+      POSTGRES_DB: stt
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-ARGS", "pg_isready", "-U", "stt"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:
+  audio_data:
+  model_data:

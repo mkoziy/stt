@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+.github
+
+# Bun
+node_modules
+.bun
+
+# Docker
+.dockerignore
+docker-compose*.yml
+
+# Tests & Docs
+tests/
+coverage/
+.nyc_output/
+*.md
+PRD.md
+
+# Environments
+.env*
+!.env.example
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Project specific
+/data
+/models
+/whisper
+/dist
+
+# Editor and IDEs
+.idea
+.vscode
+*.swp
+*.swo
+
+# Biome / Linter
+biome.json
