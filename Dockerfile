@@ -4,9 +4,10 @@ FROM oven/bun:1 AS base
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     build-essential \
+    cmake \
     curl \
     git \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Setup whisper.cpp
 WORKDIR /app/whisper
@@ -15,7 +16,7 @@ RUN git clone https://github.com/ggerganov/whisper.cpp.git . && \
 
 # The compiled binary is usually named `main` or `whisper-cli` depending on the version.
 # Let's map both to a common known alias
-RUN cp ./main /usr/local/bin/whisper-cli || cp ./whisper-cli /usr/local/bin/whisper-cli
+RUN cp ./build/bin/whisper-cli /usr/local/bin/whisper-cli || cp ./build/bin/main /usr/local/bin/whisper-cli || cp ./main /usr/local/bin/whisper-cli || cp ./whisper-cli /usr/local/bin/whisper-cli
 
 # Download the model
 RUN mkdir -p /models && \

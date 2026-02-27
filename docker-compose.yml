@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["bun", "run", "src/api.ts"]
+    command: [ "bun", "run", "src/api.ts" ]
     ports:
       - "${PORT:-3000}:3000"
     environment:
@@ -21,7 +21,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -30,7 +30,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["bun", "run", "src/worker.ts"]
+    command: [ "bun", "run", "src/worker.ts" ]
     environment:
       - DATABASE_URL=postgresql://stt:stt@db:5432/stt
       - STORAGE_DIR=/data/audio
@@ -57,7 +57,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-ARGS", "pg_isready", "-U", "stt"]
+      test: [ "CMD", "pg_isready", "-U", "stt" ]
       interval: 10s
       timeout: 5s
       retries: 5
